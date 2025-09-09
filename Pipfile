@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 pandas = "*"
 scikit-learn = "*"
+matplotlib = "*"
+faker = "*"
 
 [dev-packages]
 

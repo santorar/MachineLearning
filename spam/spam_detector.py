@@ -5,11 +5,12 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
+import joblib
+import numpy as np
 
-data = pd.read_csv("correos_dataset.csv")
-data["Asunto"] = data["Asunto"].fillna("")
-data["Cuerpo"] = data["Cuerpo"].fillna("")
+data = pd.read_csv("prueba_dataset.csv")
 data["palabras_clave"] = data["palabras_clave"].fillna("")
 data["links"] = data["links"].fillna("")
 
@@ -20,10 +21,10 @@ X = data.drop("spam", axis=1)
 y = data["spam"]
 
 # Variables texto plano
-text_features = ["Asunto", "Cuerpo", "palabras_clave", "links"]
+text_features = ["palabras_clave", "links"]
 
 # Variables categóricas
-cat_features = ["remitente", "dominio", "ip_remitente", "autentificacion"]
+cat_features = ["dominio", "autentificacion"]
 
 # Variables numéricas
 num_features = ["correos_recibidos_mismo_remitente", "reputacion_ip", "participacion_positiva"]
@@ -37,8 +38,6 @@ bool_features = ["blacklisted"]
 
 preprocesador = ColumnTransformer(
   transformers = [
-    ("text", TfidfVectorizer(), "Asunto"),
-    ("cuerpo", TfidfVectorizer(), "Cuerpo"),
     ("keywords", TfidfVectorizer(), "palabras_clave"),
     ("links", TfidfVectorizer(), "links"),
     ("cat", OneHotEncoder(handle_unknown="ignore"), cat_features),
@@ -59,7 +58,8 @@ model = Pipeline([
 # Entrenamiento
 #
 
-X_train, X_test, y_train, y_test = train_test_split(X, y,test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y,test_size=0.3, random_state=100)
+# model = joblib.load("modelo_spam.pk1")
 model.fit(X_train, y_train)
 
 #
@@ -67,4 +67,28 @@ model.fit(X_train, y_train)
 #
 
 y_pred = model.predict(X_test)
+
+joblib.dump(model, "modelo_spam_3.pk1")
+
+
 print(classification_report(y_test, y_pred))
+
+cm = confusion_matrix(y_test, y_pred, labels=[False, True])
+
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["No Spam", "Spam"])
+disp.plot(cmap="Blues")
+
+plt.show()
+
+clf = model.named_steps["classifier"]
+
+vectorizer = model.named_steps["preprocessor"]
+feature_names = vectorizer.get_feature_names_out()
+
+coeficientes = clf.coef_[0]
+
+pesos = pd.DataFrame({
+    "Variable": feature_names,
+    "Peso": coeficientes,
+    "Peso_absoluto": np.abs(coeficientes)
+}).sort_values("Peso_absoluto", ascending=False)
