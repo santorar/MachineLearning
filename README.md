@@ -26,3 +26,26 @@ El objetivo principal es entrenar un modelo que tras analizar lod features de un
 ## 3. Entrenamiento del modelo
 
 ## 4. Evaluación del Modelo
+En una primera instancia el modelo se entrenó con el dataset `correos_dataset.csv` pero este dataset tenia un problema, el etiquetado de **spam** o **ham**, se puso aleatoriamente, lo cual daba como resultado la imagen a continuación.
+
+![Imagen Modelo de Baja Precisión](./report_images/bad_model.jpeg)
+
+En la imagen se puede notar que el f1 score, el cual es la precisión del modelo o el porcentaje de aciertos nos marca un 53% de aciertos para **ham** y un 49% de aciertos para **spam**, al principio se penso que era un error con el entrenamiento del modelo, sin embargo al revisar la manera en la cual se generaron las etiquetas, se denotó que se puso de manera aleatoria la marca de spam, lo cual hacia que el dataset en sí estuviera mal ya que no habíá ningún patrón definible.
+
+Finalmente se genero un nuevo dataset que siguiera mejor una lógica de un correo que es spam y uno que no, en este caso es el dataset llamado `prueba_dataset.csv`, el cual al ejecutarlo nos dio las siguientes respuestas.
+
+#### Intento 1
+
+![Imagen Modelo Bueno 1](./report_images/good_model_1.jpeg)
+
+En este nuevo intento se vio una precisión de **92%** donde se tenie un porcentaje de aciertos de **86%** para **ham** y **95%** para **spam**.
+
+#### Intento 2
+![Imagen Modelo Bueno 2](./report_images/good_model_2.jpeg)
+
+En este intento se obtuvo una precisión de **93%** donde se puede denotar que hay un **87%** de aciertos para **ham** y **95%** de aciertos para **spam**.
+
+#### Intento 3
+![Imagen Modelo Bueno 3](./report_images/good_model_3.jpeg)
+
+En este intento se denotó una precisión más alta, siendo esta del **95%** donde se tiene un porcentahe de aciertos de **91%** para **ham** y de **96%** de **spam**.
