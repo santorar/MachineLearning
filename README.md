@@ -1,5 +1,6 @@
 *Sierra Fernández David Santiago, Valcárcel Peralta Oscar Felipe*
 # Identificación de Spam Usando Regresión Logística
+[Repositorio Github](https://github.com/santorar/MachineLearning)
 ## 1. Introducción
 Esto es una práctica de machine learning, donde buscámos desarrollar un programa en Python haciendo uso de la librería sklearn que pueda clasificar **spam** o **ham** utilizando el algoritmo de **regresión logística**.
 
