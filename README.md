@@ -25,6 +25,21 @@ El objetivo principal es entrenar un modelo que tras analizar lod features de un
 4. **IP del Remitente:** Esta al igual que con el remitente ya está siendo caracterizada por otros features más específicos.
 
 ## 3. Entrenamiento del modelo
+Para el entrenamiento del modelo, lo primero que se hizo pfue separar los datos de entrada de la salida, luego se separaron los features en 4 subcategorías, las cuales son texto `text_features`, categóricas `cat_features`, numéricas `num_features` y booleanas `bool_features`.
+
+### 3.1 Preprocesamiento
+
+Para las variables de texto se hace un vector númerico, la función `TfidfVectorizer()` mide la importancia de cada palabra tanto por su frecuencia como por lo rara que es dentro del conjunto de datos.
+
+La función `OneHotEncoder()` le da un número a cada categoría diferente dentro de la misma caracterísca.
+
+la función `StandardScaler()` estandariza las variables númericas y las hace más pequeñas para evitar que el modelo se demore demasiado en entrenarse gracias a que se utiliza la función logística este paso es sumamente necesario, si no se hace el modelo puede nunca llegar a encontrar una respuesta.
+
+Para los booleanos simplemente se convierten en 1 o 0 para verdadero y falso.
+
+### 3.2 Entrenamiento de modelo
+
+Para el entranamiento se uso la función del `sklearn` `train_test_split`, el cual baraja y toma un 30% del dataset para pruebas y un 70% para el entrenamiento, luego con la función `model.predict()` para guardar los datos de la predicción en `y` y asi poder mostrarlos.
 
 ## 4. Evaluación del Modelo
 En una primera instancia el modelo se entrenó con el dataset `correos_dataset.csv` pero este dataset tenia un problema, el etiquetado de **spam** o **ham**, se puso aleatoriamente, lo cual daba como resultado la imagen a continuación.
@@ -50,3 +65,7 @@ En este intento se obtuvo una precisión de **93%** donde se puede denotar que h
 ![Imagen Modelo Bueno 3](./report_images/good_model_3.jpeg)
 
 En este intento se denotó una precisión más alta, siendo esta del **95%** donde se tiene un porcentahe de aciertos de **91%** para **ham** y de **96%** de **spam**.
+
+![Imagen Matriz de Confusión](./report_images/final_matriz.jpeg)
+
+Esta es la matriz de confusión de este intento con el cual nos quedaremos, los resultados de los pesos se encuentran dentro del archivo `model_spam_3.pk1`.
