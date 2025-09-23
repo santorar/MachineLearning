@@ -6,6 +6,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.metrics import f1_score, precision_score
+from scipy.stats import zscore
 import matplotlib.pyplot as plt
 import joblib
 import numpy as np
@@ -31,7 +32,6 @@ num_features = ["correos_recibidos_mismo_remitente", "reputacion_ip", "participa
 
 # Variables booleanas
 bool_features = ["blacklisted"]
-
 #
 # Preprocesamiento
 #
@@ -113,6 +113,38 @@ ax.set_xticks(index + bar_width / 2)
 ax.set_xticklabels(index + 1, rotation=45)
 ax.legend()
 plt.tight_layout()
+plt.show()
+
+
+# Cálculo de la media y la desviación estándar
+mean_f1 = np.mean(f1_scores)
+std_f1 = np.std(f1_scores)
+
+# Cálculo de los Z-scores para cada F1-score
+z_scores = [(x - mean_f1) / std_f1 for x in f1_scores]
+
+print("\n--- Resultados ---")
+print(f"Media de los F1-scores: {mean_f1:.4f}")
+print(f"Desviación estándar de los F1-scores: {std_f1:.4f}")
+
+# Creación de la gráfica de barras
+fig, ax = plt.subplots(figsize=(15, 8))
+bar_width = 0.35
+index = np.arange(len(f1_scores))
+
+ax.plot(index + bar_width/2, z_scores, bar_width, label='Z-score', color='lightcoral', marker='.', linestyle='-')
+ax.axhline(y=mean_f1, color='green', linestyle=':', label='Media de F1-Score')
+ax.axhline(y=mean_f1 + std_f1, color='red', linestyle=':')
+ax.axhline(y=-(mean_f1 + std_f1), color='red', linestyle=':')
+
+ax.set_xlabel('Iteración de Entrenamiento')
+ax.set_ylabel('Valor')
+ax.set_title('Z-scores en 50 Iteraciones')
+ax.set_xticks(index)
+ax.set_xticklabels(index + 1, rotation=45, ha='right')
+ax.legend()
+plt.tight_layout()
+plt.grid(axis='y', linestyle='--', alpha=0.7)
 plt.show()
 
 if best_model:
