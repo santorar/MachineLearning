@@ -41,7 +41,7 @@ preprocesador = ColumnTransformer(
     ("keywords", TfidfVectorizer(), "palabras_clave"),
     ("links", TfidfVectorizer(), "links"),
     ("cat", OneHotEncoder(handle_unknown="ignore"), cat_features),
-    ("num", StandardScaler(), num_features),
+    ("num", "passthrough", num_features),
     ("bool", "passthrough", bool_features)
   ]
 )
