@@ -68,13 +68,13 @@ Para la medición de la calidad del entrenamiento se utilizarón tres medidas, l
 
 En la siguiente gráfica se mostrará los resultados obtenidos de parte de las 50 ejecuciones, donde se verá la precisión del modelo y su f1 score en cada iteración.
 
-![[f1precission.jpeg]]
+![F1 Score](./report_images/f1precission.jpeg)
 
 De esto podemos concluir que en cuanto a la fiabilidad del modelo junto con el dataset son buenos, ya que la mayoría de resultados se muestran por encima del 80%, además de todas las iteraciones el mejor f1 score obtenido fue del 92.6%.
 
 El z score lo que hace es decirnos que tan por encima o por debajo de la media se encuentran los resultados del f1 score, esto quiere decir que nos dará la cantidad de desviaciones estándar que hay desde la media aritmética hasta el resultado obtenido.
 
-![[zscore.jpeg]]
+![Z Score](./report_images/zscore.jpeg)
 
 Todo esto realmente se traduce a una sola cosa, la estabilidad del modelo, lo sual a su vez nos dice que tan fiable es, en este caso la mayoría de los resultados se encuentran entre 1 desviación estándar hacia arriba y hacia abajo, sin embargo se ven casos que llegan hasta 2 desviaciones y uno solo que se pasa de las dos.
 
@@ -84,6 +84,6 @@ De todo lo anterior se puede concluir que a pesar de que la mayoría tuvieron pr
 
 El árbol de decisión con mayor f1 score, precisión y mejor z score es el que se mostrará a continuación:
 
-![[decissiontree.jpeg]]
+![Arbol de decision](./report_images/decissiontree.jpeg)
 
 Este árbol toma decisiones haciendo uso del indice de gini, este empieza tomando la reputación de la IP como punto de partida, donde se clasifican alrededor de 3000 correos directamente como ham, luego vemos que la siguiente feature mas importante son los correos recibidos por el mismo remitente, el cual nos clasifica de 1000 a 2000 correos en dos partes diferentes desde las cuales se empiezan a aplicar decisiones a partir del dominio y de los links incorporados. Desde este punto se aplican las demás features dependiendo de ciertos casos específicos.
