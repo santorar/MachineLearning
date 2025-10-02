@@ -75,7 +75,9 @@ El índice de Gini es una medida de impureza de un conjunto de datos, su valor v
 El árbol no solo mira la impureza de un nodo, si no cuanto puede reducir la impureza después de una división de nodos. A esto se le denomina como ganancia de Gini.
 
 Esto se calcula calculando el Gini del nodo actual al cual se le considera como el padre en este momento, luego para cada pregunta posible calcula el ponderado de Gini de los nodos hijos, esto es un promedio de impureza entre los dos nodos nuevos.
+
 $$Ganancia = Gini(padre) - GiniPon(hijos)$$
+
 El árbol elige la pregunta con mayor Ganancia de Gini, porque esta es la que se divide en grupos más puros y ordenados.
 
 ## 3. Resultados 
