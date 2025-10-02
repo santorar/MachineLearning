@@ -24,7 +24,7 @@ Luego de esto asignamos las entradas del modelo (`X`) y las salidas deseadas (`y
 
 Finalmente se pasan las features de palabras clave y links por la función `TfidVectorizer()` la cual convierte en vectores numéricos las cadenas de texto dando un valor más alto a aquellas palabras que son raras dentro del contexto de los datos, para las features categóricas se pasan por `oneHotEncoder()`, el cual da valores numéricos a las diferentes categorías de un conjunto de datos.
 
-#### TfidVectorizer:
+#### 2.1.1. TfidVectorizer:
 Este es una función de la librería `sklearn` la cual convierte una colección de textos a una matriz númerica de características TF-IDF (Term Frequency-Inverse Document Frequency), esto es en escencia una puntuación numérica que refleja la importancia de una palabra dentro de la colección de datos previa.
 
 Para hacer este procedimiento primero se pasa por una tokenización de las palabras individuales, donde primero se convierten todas a minúsculas y seguido a esto se construye un diccionario a partir de los valores individuales asignados a cada palabra.
@@ -38,7 +38,7 @@ Donde $N$ es el número total de textos dentro de la colección, y, $df(p)$ es e
 
 Al multiplicar el TF de cada palabra individual por el IDF global de la misma se obtiene se obtienen los pesos de las palabras los cuales tienden a tener más valor cuando son frecuentes en un texto pero raras en la colección, el resultado de esto es una matriz donde cada valor `(i,j)`, es el valor de la palabra `j` en el texto `i`.
 
-#### oneHotEncoder
+#### 2.1.2. OneHotEncoder
 
 Es una función de la librería `sklearn` que transforma variables categóricas en un formato numérico que los algoritmos de machine learning pueden entender y que no genera un sesgo al darle un valor desequilibrado a las diferenetes categorías.
 
@@ -50,7 +50,7 @@ Este procedimiento guarda en la variable asignada una matriz dispersa, la cual n
 
 Finalmente para el modelo se puede acceder al valor de dos maneras una es accediendo al nombre de la categoría, y el otro es accediendo al valor del índice donde se encuentra el **1** (este nunca es 0).
 
-#### ¿Por qué usar estas funciones?
+#### 2.1.3. ¿Por qué usar estas funciones?
 
 En este caso se le aplica el `TfidVectorizer()` a las variables de links y palabras clave, esto porque el  objetivo es saber que tantas palabras raras tienen ciertos correos teniendo en cuenta el contexto de todos los demás, para así identificar si los links o palabras que contiene un correo son raras y en que cantidad se encuentran dentro de ese único correo, esto nos puede dar una clara pista de si un correo llega a ser o no spam.
 
@@ -60,11 +60,37 @@ La razón para usar `oneHotEncoder()`, es que los árboles por si mismos no pued
 
 Para la creación del modelo primero se separó el dataset completo en dos partes una de entrenamiento y otra de pruebas, en este caso se tomo un 30% del dataset para hacer pruebas y el resto para el entrenamiento. Luego se declaró que este modelo es un arbol de decisión haciendo uso de la función de `sklearn` llamada `DecissionTreeClasifier`, el cual al pasarle los datos de entrenamientoo ya tratados solo es necesario utilizar la función `fit()` este internamente utiliza el índice de gini para tomar las decisiones, esto nos dará el resultado final del entrenamiento.
 
+#### 2.2.1. ¿Cómo funciona el DecissionTreeClasifier paso a paso?
+
+Todo el procedimiento empieza desde el nodo raíz, el cual contiene todo el dataset. Seguido a esto el árbol empieza a crear varias preguntas hasta que encuentra aquella que divida los datos en los grupos más puros, es decir la que tenga la mayor ganancia de Gini, luego de hacer esto se dividen los datos en dos nodos, uno que responde a la pregunta con un sí y otro que responde con un no.
+
+El árbol repite estos procesos una y otra vez hasta que los nodos finales son puros, no se puede mejorar más la pureza o llega a la profundidad máxima definida.
+
+#### 2.2.2. Índice de Gini
+
+El índice de Gini es una medida de impureza de un conjunto de datos, su valor va desde 0 a 0.5 cuando un problema es de dos clases como en este caso, donde $Gini = 0$ es puro, es decir que todos los elementos del nodo pertenecen a la misma clase, $Gini = 0.5$ es impuro, es decir hay una mezcla perfecta de 50% y 50% de las clases.
+
+#### 2.2.3 ¿Cómo usa el árbol el índice de Gini?
+
+El árbol no solo mira la impureza de un nodo, si no cuanto puede reducir la impureza después de una división de nodos. A esto se le denomina como ganancia de Gini.
+
+Esto se calcula calculando el Gini del nodo actual al cual se le considera como el padre en este momento, luego para cada pregunta posible calcula el ponderado de Gini de los nodos hijos, esto es un promedio de impureza entre los dos nodos nuevos.
+$$Ganancia = Gini(padre) - GiniPon(hijos)$$
+El árbol elige la pregunta con mayor Ganancia de Gini, porque esta es la que se divide en grupos más puros y ordenados.
+
 ## 3. Resultados 
 
 Para la medición de la calidad del entrenamiento se utilizarón tres medidas, la precisión (accuracy), el f1 score y finalmente el z score. Además se hizo la ejecución del algoritmo unas 50 veces para determinar cual era la mejor respuesta obtenida por este.
 
-### 3.1. Resultados Generales
+### 3.1. Árbol Seleccionado
+
+El árbol de decisión con mayor f1 score, precisión y mejor z score es el que se mostrará a continuación:
+
+![Arbol de decision](./report_images/decissiontree.jpeg)
+
+Este árbol toma decisiones haciendo uso del indice de gini, este empieza tomando la reputación de la IP como punto de partida, donde se clasifican alrededor de 3000 correos directamente como ham, luego vemos que la siguiente feature mas importante son los correos recibidos por el mismo remitente, el cual nos clasifica de 1000 a 2000 correos en dos partes diferentes desde las cuales se empiezan a aplicar decisiones a partir del dominio y de los links incorporados. Desde este punto se aplican las demás features dependiendo de ciertos casos específicos.
+
+### 3.2. Resultados Generales
 
 En la siguiente gráfica se mostrará los resultados obtenidos de parte de las 50 ejecuciones, donde se verá la precisión del modelo y su f1 score en cada iteración.
 
@@ -76,14 +102,16 @@ El z score lo que hace es decirnos que tan por encima o por debajo de la media s
 
 ![Z Score](./report_images/zscore.jpeg)
 
-Todo esto realmente se traduce a una sola cosa, la estabilidad del modelo, lo sual a su vez nos dice que tan fiable es, en este caso la mayoría de los resultados se encuentran entre 1 desviación estándar hacia arriba y hacia abajo, sin embargo se ven casos que llegan hasta 2 desviaciones y uno solo que se pasa de las dos.
+Todo esto realmente se traduce a una sola cosa, la estabilidad del modelo, lo sual a su vez nos dice que tan fiable es, en este caso el rendimiento real de este modelo es muy inestable, y es muy sensible a la manera en que se dividen los datos de entrenamiento y de testing.
+
+**El rendimiento de este modelo es bueno dependiendo de la suerte que se tenga en el reparto de los datos.**
 
 De todo lo anterior se puede concluir que a pesar de que la mayoría tuvieron precisiones altas, algunas de las respuestas no son las mejores ni las más óptimas.
 
-### 3.2. Árbol Seleccionado
+## 4. Conclusiones
 
-El árbol de decisión con mayor f1 score, precisión y mejor z score es el que se mostrará a continuación:
+Este modelo en su estado actual no es fiable al 100% ya que apesar de tener f1 score altos y aceptables, estos no llegan a ser estables generando que unos en promedio seán mucho más altos que otros por puro azar.
 
-![Arbol de decision](./report_images/decissiontree.jpeg)
+También se puede concluir que se podrían aplicar otras técnicas para dividir los datos que permitan hacer más estable el verdadero rendimiento del modelo.
 
-Este árbol toma decisiones haciendo uso del indice de gini, este empieza tomando la reputación de la IP como punto de partida, donde se clasifican alrededor de 3000 correos directamente como ham, luego vemos que la siguiente feature mas importante son los correos recibidos por el mismo remitente, el cual nos clasifica de 1000 a 2000 correos en dos partes diferentes desde las cuales se empiezan a aplicar decisiones a partir del dominio y de los links incorporados. Desde este punto se aplican las demás features dependiendo de ciertos casos específicos.
+Por último se puede llegar a pensar que la inestabilidad del modelo se puede deber a que en algunos casos este realmente no está generalizando si no que se esta sobre ajustando, es decir aprendiendo el dataset, para evitar esto se podría rediucir la profundidad del árbol o en añadir un mínimo de muestras que se deben obtener de una división. 
