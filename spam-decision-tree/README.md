@@ -2,7 +2,7 @@
  
  Integrantes: *David Santiago Sierra Fernández, Oscar Felipe Valcárcel Peralta 
  
- **Link del Repositorio: https://github.com/santorar/MachineLearning/tree/main/spam-decision-tree. 
+ **Link del Repositorio: https://github.com/santorar/MachineLearning/tree/main/spam-decision-tree.** 
  
 ## 1. Introducción 
 
@@ -14,12 +14,47 @@ El objetivo principal es alcanzar el máximo rendimiento posible, medido a trav�
 
 ## 2. Preparación del Modelo
 
-El modelo que se va a utiizar es
+El modelo que se va a utilizar es un árbol de decisiones, este árbol guiará las decisiones por medio del índice de Gini, a continuación se explicará más a detalle el funcionamiento del modelo.
+
 ### 2.1. Preparación de los datos
 
-Como primer paso llamamos el dataset el cual en esta practica es llamado `prueba_dataset.csv`,  además para evitar valores null se le asignan strings vacíos a las features de `palabras_clave` y `links` esto para que no se rompa el modelo y pueda tratar estos datos.
+Como primer paso llamamos el dataset el cual en esta practica es llamado `prueba_dataset.csv`,  además para evitar valores `null` se le asignan strings vacíos a las features de `palabras_clave` y `links` esto para que no se rompa el modelo y pueda tratar estos datos.
 
-Luego de esto asignamos las entradas del modelo (X) y las salidas deseadas (y), una vez separadas entradas y salidas se separan los features en 4 subgrupos, los cuales son features de texto, categóricos, numéricos y boleanos. Finalmente se pasan las features de palabras clave y links por la función `TfidVectoorizer` la cual convierte en vectores numéricos las cadenas de texto dando un valor más alto a aquellas palabras que son raras dentro del contexto de los datos, para las features categóricas se pasan por `oneHotEncoder`, el cual da valores numéricos a las diferentes categorías de un conjunto de datos, para las variables numéricas se aplica la función `StandardScaler`, el cual estandariza los datos para evitar valores demasiado grandes que compliquen su uso en el entrenamiento.
+Luego de esto asignamos las entradas del modelo (`X`) y las salidas deseadas (`y`), una vez separadas entradas y salidas se separan los features en 4 subgrupos, los cuales son features de texto, categóricos, numéricos y boleanos. 
+
+Finalmente se pasan las features de palabras clave y links por la función `TfidVectorizer()` la cual convierte en vectores numéricos las cadenas de texto dando un valor más alto a aquellas palabras que son raras dentro del contexto de los datos, para las features categóricas se pasan por `oneHotEncoder()`, el cual da valores numéricos a las diferentes categorías de un conjunto de datos.
+
+#### TfidVectorizer:
+Este es una función de la librería `sklearn` la cual convierte una colección de textos a una matriz númerica de características TF-IDF (Term Frequency-Inverse Document Frequency), esto es en escencia una puntuación numérica que refleja la importancia de una palabra dentro de la colección de datos previa.
+
+Para hacer este procedimiento primero se pasa por una tokenización de las palabras individuales, donde primero se convierten todas a minúsculas y seguido a esto se construye un diccionario a partir de los valores individuales asignados a cada palabra.
+
+**Term Frequency:** Mide la frecuencia con la que aparece una palabra, si una palabra en un texto aparece varías veces su TF es alto. El resultado de esto es una matriz donde cada fila es un texto y cada columna es una palabra. La fórmula básica para este cálculo es:
+
+$$IDF(p)=log\frac{N}{df(p)}$$ 
+
+Donde $N$ es el número total de textos dentro de la colección, y, $df(p)$ es el número de textos que continen la palabra $t$.  
+**Inverse Document Frequency:** Mide lo rara que puede llegar a ser una palabra en toda la colección de textos, es decir las palabras más comúnes tienen un IDF más bajo.
+
+Al multiplicar el TF de cada palabra individual por el IDF global de la misma se obtiene se obtienen los pesos de las palabras los cuales tienden a tener más valor cuando son frecuentes en un texto pero raras en la colección, el resultado de esto es una matriz donde cada valor `(i,j)`, es el valor de la palabra `j` en el texto `i`.
+
+#### oneHotEncoder
+
+Es una función de la librería `sklearn` que transforma variables categóricas en un formato numérico que los algoritmos de machine learning pueden entender y que no genera un sesgo al darle un valor desequilibrado a las diferenetes categorías.
+
+Como primer paso la la función analiza la feature que se le proporcionó y encuentra todas las caractrerísticas únicas existentes.
+
+Seguido a esto genera una matriz donde cada fila es la categoría numérica (0, 1, 2, 3, e.t.c.), y donde cada columna es una categoría única (a, b, c, d), luego a cada fila se le asignará un **1** a la columna de la categoría a la que pertenece siendo este el valor el que  índica a que clase pertenece.
+
+Este procedimiento guarda en la variable asignada una matriz dispersa, la cual no muestra los 0 si no que simplemente guarda las categorías a las que pertenece guíandose del valor 1.
+
+Finalmente para el modelo se puede acceder al valor de dos maneras una es accediendo al nombre de la categoría, y el otro es accediendo al valor del índice donde se encuentra el **1** (este nunca es 0).
+
+#### ¿Por qué usar estas funciones?
+
+En este caso se le aplica el `TfidVectorizer()` a las variables de links y palabras clave, esto porque el  objetivo es saber que tantas palabras raras tienen ciertos correos teniendo en cuenta el contexto de todos los demás, para así identificar si los links o palabras que contiene un correo son raras y en que cantidad se encuentran dentro de ese único correo, esto nos puede dar una clara pista de si un correo llega a ser o no spam.
+
+La razón para usar `oneHotEncoder()`, es que los árboles por si mismos no pueden entender texto, y al darles valores de 1 y 0 a cada una de las categorías evita que una sea mayor que otra, es decir no crea una relación falsa de orden entre las diferentes categorías.
 
 ### 2.2. Creación del Modelo
 
